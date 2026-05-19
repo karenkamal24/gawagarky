@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Reverb Test</title>
+</head>
+<body>
+
+<h2>🔥 Laravel Reverb Test</h2>
+
+<button onclick="sendTest()">Send Test Event</button>
+
+<div id="log" style="margin-top:20px;"></div>
+
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+
+<script>
+window.Pusher = Pusher;
+
+/**
+ * 🔥 Echo Setup (Reverb compatible)
+ */
+const echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'localkey',
+    wsHost: '127.0.0.1',
+    wsPort: 6001,
+    forceTLS: false,
+    encrypted: false,
+    enabledTransports: ['ws'],
+    cluster: 'mt1',
+    disableStats: true,
+
+    authEndpoint: 'http://127.0.0.1:8000/broadcasting/auth',
+
+    auth: {
+        headers: {
+            Authorization: 'Bearer YOUR_TOKEN_HERE'
+        }
+    }
+});
+
+/**
+ * 🔔 Subscribe to test channel
+ */
+echo.private('test-channel')
+    .listen('TestBroadcast', (e) => {
+
+        console.log('🔥 EVENT RECEIVED:', e);
+
+        document.getElementById('log').innerHTML += `
+            <p>✅ Message: ${e.message}</p>
+        `;
+    });
+
+/**
+ * 🚀 Trigger test event from backend
+ */
+function sendTest() {
+    fetch('http://127.0.0.1:8000/test-broadcast')
+        .then(res => res.text())
+        .then(data => {
+            console.log('Server:', data);
+        });
+}
+</script>
+
+</body>
+</html>
